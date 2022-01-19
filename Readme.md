@@ -110,13 +110,10 @@ metadata:
   name: <nome do issuer>
 spec:
   acme:
-    # Email address used for ACME registration
     email: your_email_address
     server: https://acme-v02.api.letsencrypt.org/directory
     privateKeySecretRef:
-      # Name of a secret used to store the ACME account private key
       name: letsencrypt-prod-private-key
-    # Add a single challenge solver, HTTP01 using nginx
     solvers:
     - http01:
         ingress:
@@ -173,10 +170,10 @@ metadata:
 spec:
   tls:
   - hosts:
-    - www.pedelogo.proativaconsultoria.io
+    - www.subdominio.dominio.io
     secretName: pedelogo-tls-cert
   rules:
-    - host: www.pedelogo.proativaconsultoria.io
+    - host: www.subdominio.dominio.io
       http:
         paths:
         - backend:
@@ -197,8 +194,9 @@ spec:
 ➜ kubectl apply -f api/ingress-host.yaml
 ingress.networking.k8s.io/ingress-path created
 ```
+#
 
-### Problemas ocorridos na DigitalOcean
+## Problemas ocorridos na DigitalOcean
 
 Ao fazer a requisição de certificado o mesmo fica preso na etapa "Waiting on certificate issuance from order"
 
@@ -219,10 +217,10 @@ NAME                      READY   AGE
 pedelogo-tls-cert-5whwr   False   2m10s
 ```
 
-Deve-se executar o passo 5 de [DigitalOcean troubleshooting](https://cert-manager.io/docs/faq/troubleshooting/https://www.digitalocean.com/community/tutorials/how-to-set-up-an-nginx-ingress-with-cert-manager-on-digitalocean-kubernetes#step-2-%E2%80%94-setting-up-the-kubernetes-nginx-ingress-controller)
+Deve-se executar o passo 5 de [DigitalOcean troubleshooting](https://www.digitalocean.com/community/tutorials/how-to-set-up-an-nginx-ingress-with-cert-manager-on-digitalocean-kubernetes#step-2-%E2%80%94-setting-up-the-kubernetes-nginx-ingress-controller)
 
 Que basicamente é:
-* Criar um registro do tipo `A` no DNS para o sub-domínio ao qual o host pertence apontando para o endereço IP do ingress
+* Criar um registro do tipo `A` no DNS para o sub-domínio ao qual o host pertence apontando para o endereço IP do ingress (já feito anteriormente)
 
 * Obter o manifesto do serviço `ingress-nginx-controller`
 
@@ -230,7 +228,7 @@ Que basicamente é:
 
 * Aplicar o manifesto
 
-### Obteção do manifesto
+### Obtenção do manifesto
 
 ```bash
 ➜ kubectl get service/ingress-nginx-controller -n ingress-nginx -o yaml > ingress-nginx.yaml
@@ -292,9 +290,9 @@ spec:
 
 ## Referências
 
-https://www.digitalocean.com/community/tutorials/how-to-set-up-an-nginx-ingress-on-digitalocean-kubernetes-using-helm
+[How To Set Up an Nginx Ingress on DigitalOcean Kubernetes Using Helm
+](https://www.digitalocean.com/community/tutorials/how-to-set-up-an-nginx-ingress-on-digitalocean-kubernetes-using-helm)
 
-https://cert-manager.io/docs/faq/troubleshooting/
-https://www.digitalocean.com/community/tutorials/how-to-set-up-an-nginx-ingress-with-cert-manager-on-digitalocean-kubernetes#step-2-%E2%80%94-setting-up-the-kubernetes-nginx-ingress-controller
+[How to Set Up an Nginx Ingress with Cert-Manager on DigitalOcean Kubernetes](https://www.digitalocean.com/community/tutorials/how-to-set-up-an-nginx-ingress-with-cert-manager-on-digitalocean-kubernetes#step-2-%E2%80%94-setting-up-the-kubernetes-nginx-ingress-controller)
 
-
+[Troubleshooting cert-manager](https://cert-manager.io/docs/faq/troubleshooting/)
