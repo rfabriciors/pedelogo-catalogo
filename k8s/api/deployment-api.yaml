@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pedelogo
+  namespace: api
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: api
+  template:
+    metadata:
+      labels:
+        app: api
+    spec:
+      initContainers:
+        - name: test-db
+          image: busybox:1.28
+          command: [ "sh", "-c", "until nslookup mongodb-svc.mongodb.svc.cluster.local; do echo Tentando acesso; sleep 2; done" ]
+      containers:
+      - name: api
+        image: rfabricio/pedelogo-catalogo:v1.0.0
+        resources:
+          limits:
+            memory: "64Mi"
+            cpu: "500m"
+          requests:
+            memory: "32Mi"
+            cpu: "150m"
+        ports:
+        - containerPort: 80
+          name: http
+        - containerPort: 443
+          name:  https
+        imagePullPolicy: Always
+        envFrom:
+          - configMapRef:
+              name: configmap-api
+          - secretRef:
+              name: api-secret
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 80
+            scheme: HTTP
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 2
+          failureThreshold: 2
+        readinessProbe:
+          httpGet:
+            path: /read
+            port: 80
+            scheme: HTTP
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 2
+          failureThreshold: 3
+          successThreshold: 2
+        startupProbe:
+          httpGet:
+            path: /health
+            port: 80
+            scheme: HTTP
+          failureThreshold: 30
+          periodSeconds: 10

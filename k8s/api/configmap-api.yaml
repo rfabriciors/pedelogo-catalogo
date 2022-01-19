@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: configmap-api
+  namespace: api
+  labels:
+    app: api
+data:
+  Mongo__Host: mongodb-svc.mongodb.svc.cluster.local
+  Mongo__DataBase: admin
+  Mongo__Port: "27017"
